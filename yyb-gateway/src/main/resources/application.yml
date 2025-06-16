@@ -1,0 +1,18 @@
+# application.yml
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: yyb-token
+          uri: lb://yyb-token
+          predicates:
+            - Path=/auth/**
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/user/**
+          filters:
+            - name: Authorize
+              args:
+                # 除登录接口外，其他接口需认证
+                excludedPaths: /api/public/token

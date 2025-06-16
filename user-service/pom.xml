@@ -9,12 +9,7 @@
         <version>1.0.0</version>
     </parent>
 
-    <groupId>cn.ac.swip</groupId>
-    <artifactId>yyb-common</artifactId>
-    <version>1.0.0</version>
-
-    <packaging>pom</packaging>
-    <description>yyb 中常用的一些公共包</description>
+    <artifactId>user-service</artifactId>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -22,10 +17,19 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <modules>
-        <module>yyb-dbh</module>
-        <module>yyb-redis</module>
-    </modules>
+    <dependencies>
+        <!-- 服务发现与注册 -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
 
+        <!-- Spring Boot 核心依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+    </dependencies>
 
 </project>
