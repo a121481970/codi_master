@@ -18,24 +18,6 @@
     <description>yyb微服务版本（含OAuth2.0认证）</description>
     <packaging>pom</packaging>
 
-
-    <modules>
-        <module>yyb-common</module>
-        <module>yyb-token</module>
-        <module>yyb-resource</module>
-        <module>yyb-gateway</module>
-        <module>user-service</module>
-    </modules>
-
-<!--    &lt;!&ndash; 模块定义 &ndash;&gt;-->
-<!--    <modules>-->
-<!--        <module>codi-token</module> &lt;!&ndash; 授权服务模块&ndash;&gt;-->
-<!--        <module>codi-config</module> &lt;!&ndash;配置中心模块&ndash;&gt;-->
-<!--        <module>user-service</module> &lt;!&ndash;用户服务模块&ndash;&gt;-->
-<!--        <module>codi-gateway</module> &lt;!&ndash;网关服务模块&ndash;&gt;-->
-<!--        <module>codi-common</module> &lt;!&ndash;公共组件模块&ndash;&gt;-->
-<!--    </modules>-->
-
     <!-- JDK 11 配置 -->
     <properties>
         <java.version>11</java.version>
