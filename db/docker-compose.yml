@@ -1,0 +1,19 @@
+version: '3'
+services:
+  mariadb:
+    image: mariadb_pig  # 镜像版本，按需调整
+    container_name: mariadb_pig  # 容器名称
+    ports:
+      - "3306:3306"  # 端口映射
+    environment:
+      TZ: Asia/Shanghai  # 时区
+      MYSQL_ROOT_PASSWORD: 123456  # root 密码
+    volumes:
+      - ./data:/var/lib/mysql  # 挂载数据目录（当前目录下 data 文件夹，需提前创建）
+      - ./config:/etc/mysql/conf.d  # 挂载配置目录
+      - ./logs:/var/log/mysql  # 挂载日志目录
+    ulimits:
+      nofile:
+        soft: 1024
+        hard: 1024  # 调整文件打开数，优化性能
+    restart: always  # 容器退出后自动重启

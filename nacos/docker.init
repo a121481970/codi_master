@@ -1,0 +1,36 @@
+https://blog.csdn.net/m0_54226831/article/details/147821739
+
+docker pull nacos/nacos-server:latest
+
+mkdir -p /data/nacos/{conf,logs,data}
+或
+mkdir -p /home/nacos/conf/
+mkdir -p /home/nacos/logs/
+mkdir -p /home/nacos/data/
+
+# 创建容器
+docker run -p 8848:8848 --name nacos -d nacos/nacos-server:latest
+
+# 拷贝文件
+docker cp nacos:/home/nacos/conf/ d:/data/nacos/
+docker cp nacos:/home/nacos/data/ d:/data/nacos/
+docker cp nacos:/home/nacos/logs/ d:/data/nacos/
+
+# 授权文件
+chmod 777 /data/nacos/{conf,logs,data}
+
+# 删除容器
+docker rm -f nacos
+
+
+docker run -d --name nacos -p 8084:8080 -p 8848:8848 -p 9848:9848 -p 9849:9849 -e MODE=standalone -e NACOS_AUTH_ENABLE=false -e NACOS_AUTH_TOKEN=dGVzdDp0ZXN0 -e NACOS_AUTH_IDENTITY_KEY=serverIdentity -e NACOS_AUTH_IDENTITY_VALUE=security -e JVM_XMS=512m -e JVM_XMX=512m -e JVM_XMN=256m -e JVM_MS=128m -e JVM_MMS=256m -v d:/data/nacos/conf:/home/nacos/conf -v d:/data/nacos/data:/home/nacos/data -v d:/data/nacos/logs:/home/nacos/logs nacos/nacos-server
+
+# NACOS_AUTH_TOKEN = codis_nacos_mariadb_redis_pig
+docker run -d --name nacos -p 8848:8848 -p 9848:9848 -p 9849:9849 -e MODE=standalone -e NACOS_AUTH_ENABLED=true -e NACOS_AUTH_TOKEN=TkFDT1NfQVVUSF9UT0tFTj1jb2Rpc19uYWNvc19tYXJpYWRiX3JlZGlzX3BpZw== -e NACOS_AUTH_IDENTITY_KEY=TkFDT1NfQVVUSF9JREVOVElUWV9LRVk9cm9vdA== -e NACOS_AUTH_IDENTITY_VALUE=TkFDT1NfQVVUSF9JREVOVElUWV9WQUxVRT1jb2RpQDIwMjA= -e JVM_XMS=512m -e JVM_XMX=512m  -e JVM_XMN=256m -e JVM_MS=128m -e JVM_MMS=256m -v d:/data/nacos/conf:/home/nacos/conf -v d:/data/nacos/logs:/home/nacos/logs -v d:/data/nacos/data:/home/nacos/data nacos/nacos-server
+
+
+
+docker-compose -f naocs-compose.yaml up
+
+
+

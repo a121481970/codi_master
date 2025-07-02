@@ -1,0 +1,13 @@
+version: '3'
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./conf.d:/etc/nginx/conf.d  # 挂载自定义配置目录，可根据实际改
+      - ./html:/usr/share/nginx/html  # 挂载静态文件目录
+    networks:
+      - my - nginx - net
+networks:
+  my - nginx - net:

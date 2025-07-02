@@ -1,0 +1,57 @@
+docker network create --subnet=192.168.248.0/24 cn.ac.swip.codis
+
+cd Dockerfile文件根路径下
+docker build -t mariadb_pig .
+
+#pull mariadb 最新版本
+docker pull mariadb:latest
+或者指定版本pull
+docker pull mariadb:10.11.8
+
+cd d:/data/mariadb
+mkdir -p /{data,config,logs}
+
+
+
+docker run -d -p 3306:3306 --network cn.ac.swip.codis --ip=192.168.248.10  -e TZ="Asia/Shanhai"   -e MYSQL_ROOT_PASSWORD=codi@2020  --name   codis_pig mariadb_codis_pig
+
+docker cp db_codis:/var/lib/mysql/  d:/data/codis/data/
+docker cp db_codis:/etc/mysql/conf.d/  d:/data/codis/conf/
+docker cp db_codis:/var/log/mysql  d:/data/codis/logs
+
+docker run -d -p 3306:3306 --name mariadb_pig --network cn.ac.swip.codis --ip=192.168.248.10  -e TZ="Asia/Shanhai"   -e MYSQL_ROOT_PASSWORD=codi@2020   -v ./data:/var/lib/mysql   -v ./conf/my.conf:/etc/my.cnf   -v ./script:/script   mariadb_codis_pig
+
+
+docker run -d -p 3306:3306 --name mariadb_pig
+   -e TZ="Asia/Shanhai"
+   -e MYSQL_ROOT_PASSWORD=123456
+   -v /data/mariadb/data:/var/lib/mysql
+   -v /data/mariadb/config:/etc/mysql/conf.d
+   -v /data/mariadb/logs:/var/log/mysql
+   --character-set-server=utf8mb4
+   --collation-server=utf8mb4_unicode_ci
+   mariadb_pig
+
+
+
+
+安装docker-compose.yml
+version: '3'
+services:
+  mariadb:
+    image: mariadb:10.11.8  # 镜像版本，按需调整
+    container_name: mariadb-test  # 容器名称
+    ports:
+      - "53306:3306"  # 端口映射
+    environment:
+      TZ: Asia/Shanghai  # 时区
+      MYSQL_ROOT_PASSWORD: 123456  # root 密码
+    volumes:
+      - ./data:/var/lib/mysql  # 挂载数据目录（当前目录下 data 文件夹，需提前创建）
+      - ./config:/etc/mysql/conf.d  # 挂载配置目录
+      - ./logs:/var/log/mysql  # 挂载日志目录
+    ulimits:
+      nofile:
+        soft: 1024
+        hard: 1024  # 调整文件打开数，优化性能
+    restart: always  # 容器退出后自动重启

@@ -1,0 +1,195 @@
+version: "4"
+
+# 定义外部网络，名称为 nacos_cn.ac.swip.codis
+networks:
+  existing_net:
+    external: true
+    name: cn.ac.swip.codis  # 明确外部网络实际名称
+
+
+
+services:
+  # ========== Nginx 反向代理服务 ==========
+  nginx:
+    image: nginx
+    container_name: nginx-codis
+    ports:
+      - "80:80"   # HTTP 端口，可根据需求修改为 443（HTTPS）
+      - "443:443" # HTTPS 端口（若需 SSL 证书，需挂载证书目录）
+    volumes:
+      - ./nginx:/etc/nginx/conf.d  # 挂载 Nginx 代理配置
+    networks:
+      existing_net:
+        ipv4_address: 192.168.248.2  # Nginx 在外部网络的 IP（按需调整）
+    depends_on:
+      - nacos1
+      - nacos2
+      - nacos3
+      - seata
+      - sentinel-dashboard
+    restart: always
+  nacos1:
+    hostname: nacos1
+    container_name: nacos1
+    image: nacos/nacos-server:latest
+    environment:
+      - MODE=cluster
+      - PREFER_HOST_MODE=hostname
+      - NACOS_SERVERS=192.168.248.23:8848 192.168.248.24:8848 192.168.248.25:8848
+      - NACOS_SERVER_IP=192.168.248.23
+      - NACOS_AUTH_TOKEN=TkFDT1NfQVVUSF9UT0tFTj1jb2Rpc19uYWNvc19tYXJpYWRiX3JlZGlzX3BpZw==
+      - NACOS_AUTH_IDENTITY_KEY=TkFDT1NfQVVUSF9JREVOVElUWV9LRVk9cm9vdA==
+      - NACOS_AUTH_IDENTITY_VALUE=TkFDT1NfQVVUSF9JREVOVElUWV9WQUxVRT1jb2RpQDIwMjA=
+      - SPRING_DATASOURCE_PLATFORM=mysql
+      - MYSQL_SERVICE_HOST=192.168.248.1
+      - MYSQL_SERVICE_DB_NAME=nacos
+      - MYSQL_SERVICE_PORT=3306
+      - MYSQL_SERVICE_USER=root
+      - MYSQL_SERVICE_PASSWORD=codi@2020
+      - MYSQL_SERVICE_DB_PARAM=utf8&connectTimeout=10000&socketTimeout=30000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=UTC
+      - JAVA_OPTS=-Xms256m -Xmx256m -Xmn128m
+    volumes:
+      - ./application.properties:/home/nacos/conf/application.properties
+      - ./logs/nacos-1/logs:/home/nacos/logs
+      - ./cluster.conf:/home/nacos/conf/cluster.conf
+    ports:
+      - "8023:8080"
+      - "8248:8848"
+      - "9248:9848"
+      - "7248:7848"
+      - "9249:9849"
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8848/nacos"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # 关联到已定义的外部网络
+    networks:
+      existing_net:
+        ipv4_address: 192.168.248.23
+
+  nacos2:
+    hostname: nacos2
+    container_name: nacos2
+    image: nacos/nacos-server:latest
+    environment:
+      - MODE=cluster
+      - PREFER_HOST_MODE=hostname
+      - NACOS_SERVERS=192.168.248.23:8848 192.168.248.24:8848 192.168.248.25:8848
+      - NACOS_SERVER_IP=192.168.248.24
+      - NACOS_AUTH_TOKEN=TkFDT1NfQVVUSF9UT0tFTj1jb2Rpc19uYWNvc19tYXJpYWRiX3JlZGlzX3BpZw==
+      - NACOS_AUTH_IDENTITY_KEY=TkFDT1NfQVVUSF9JREVOVElUWV9LRVk9cm9vdA==
+      - NACOS_AUTH_IDENTITY_VALUE=TkFDT1NfQVVUSF9JREVOVElUWV9WQUxVRT1jb2RpQDIwMjA=
+      - SPRING_DATASOURCE_PLATFORM=mysql
+      - MYSQL_SERVICE_HOST=192.168.248.10
+      - MYSQL_SERVICE_DB_NAME=nacos
+      - MYSQL_SERVICE_PORT=3306
+      - MYSQL_SERVICE_USER=root
+      - MYSQL_SERVICE_PASSWORD=codi@2020
+      - MYSQL_SERVICE_DB_PARAM=utf8&connectTimeout=10000&socketTimeout=30000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=UTC
+      - JAVA_OPTS=-Xms256m -Xmx256m -Xmn128m
+    volumes:
+      - ./application.properties:/home/nacos/conf/application.properties
+      - ./logs/nacos-2/logs:/home/nacos/logs
+      - ./cluster.conf:/home/nacos/conf/cluster.conf
+    ports:
+      - "8024:8080"
+      - "8348:8848"
+      - "9348:9848"
+      - "7348:7848"
+      - "9349:9849"
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8848/nacos"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      existing_net:
+        ipv4_address: 192.168.248.24
+
+  nacos3:
+    hostname: nacos3
+    container_name: nacos3
+    image: nacos/nacos-server:latest
+    environment:
+      - MODE=cluster
+      - PREFER_HOST_MODE=hostname
+      - NACOS_SERVERS=192.168.248.23:8848 192.168.248.24:8848 192.168.248.25:8848
+      - NACOS_SERVER_IP=192.168.248.25
+      - NACOS_AUTH_TOKEN=TkFDT1NfQVVUSF9UT0tFTj1jb2Rpc19uYWNvc19tYXJpYWRiX3JlZGlzX3BpZw==
+      - NACOS_AUTH_IDENTITY_KEY=TkFDT1NfQVVUSF9JREVOVElUWV9LRVk9cm9vdA==
+      - NACOS_AUTH_IDENTITY_VALUE=TkFDT1NfQVVUSF9JREVOVElUWV9WQUxVRT1jb2RpQDIwMjA=
+      - SPRING_DATASOURCE_PLATFORM=mysql
+      - MYSQL_SERVICE_HOST=192.168.248.10
+      - MYSQL_SERVICE_DB_NAME=nacos
+      - MYSQL_SERVICE_PORT=3306
+      - MYSQL_SERVICE_USER=root
+      - MYSQL_SERVICE_PASSWORD=codi@2020
+      - MYSQL_SERVICE_DB_PARAM=utf8&connectTimeout=10000&socketTimeout=30000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=UTC
+      - JAVA_OPTS=-Xms256m -Xmx256m -Xmn128m
+    volumes:
+      - ./application.properties:/home/nacos/conf/application.properties
+      - ./logs/nacos-3/logs:/home/nacos/logs
+      - ./cluster.conf:/home/nacos/conf/cluster.conf
+    ports:
+      - "8025:8080"
+      - "8448:8848"
+      - "9448:9848"
+      - "7448:7848"
+      - "9449:9849"
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8848/nacos"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      existing_net:
+        ipv4_address: 192.168.248.25
+
+  seata:
+    hostname: seata
+    image: seataio/seata-server
+    container_name: seata
+    ports:
+      - "7591:7091"
+      - "8591:8091"
+    volumes:
+      - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime
+      - /usr/share/zoneinfo/Asia/Shanghai:/etc/timezone
+      - ./seata:/seata-server/resources
+    networks:
+      existing_net:
+        ipv4_address: 192.168.248.26
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7091/"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      nacos1:
+        condition: service_healthy
+      nacos2:
+        condition: service_healthy
+      nacos3:
+        condition: service_healthy
+
+  sentinel-dashboard:
+    hostname: sentinel
+    image: bladex/sentinel-dashboard
+    container_name: sentinel-dashboard
+    restart: always
+    environment:
+      JAVA_OPTS: "-Dsentinel.dashboard.auth.username=sentinel -Dsentinel.dashboard.auth.password=xxaq1122 server.port=8858 -Dcsp.sentinel.dashboard.server=localhost:8858 -Dproject.name=sentinel-dashboard"
+    ports:
+      - "8658:8858"
+    volumes:
+      - ./sentinel:/root/logs
+    networks:
+      existing_net:
+        ipv4_address: 192.168.248.27
